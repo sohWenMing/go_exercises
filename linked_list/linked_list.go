@@ -1,6 +1,8 @@
 package linked_list
 
-import "errors"
+import (
+	"errors"
+)
 
 type Node struct {
 	data int
@@ -52,6 +54,7 @@ func (l *LinkedList) InsertAtEnd(n *Node) error {
 		return checkErr
 	}
 	if isSet := l.setHeadIfHeadEmpty(n); isSet {
+		l.incrementLength()
 		return nil
 	}
 	curNode := l.GetHead()
@@ -205,6 +208,46 @@ func (l *LinkedList) DeleteByValue(val int) (isDeleted bool) {
 	return
 }
 
+func (l *LinkedList) SearchByValue(val int) (isFound bool, position int) {
+	isFound = false
+	position = -1
+	// init negative return values
+
+	curr := l.GetHead()
+	for curr != nil {
+		position++
+		if curr.data == val {
+			isFound = true
+			return
+		}
+		curr = curr.next
+	}
+	position = -1
+	return
+}
+
+func (l *LinkedList) GetAt(pos int) (n *Node, isFound bool, err error) {
+	isFound = false
+	n = nil
+	if pos < 0 || pos > l.length-1 {
+		return n, isFound, errors.New("position out of bounds")
+	}
+	curr := l.GetHead()
+	if curr == nil {
+		return n, isFound, errors.New("list cannot be empty")
+	}
+	currPos := -1
+	for curr != nil {
+		currPos++
+		if currPos == pos {
+			return curr, true, nil
+		}
+		curr = curr.next
+	}
+	//check through all nodes, if found, return
+	return n, isFound, nil
+
+}
 func (l *LinkedList) decrementLength() {
 	l.length -= 1
 }

@@ -431,3 +431,146 @@ func TestDeleteByValue(t *testing.T) {
 		}
 	})
 }
+
+func TestSearchByValue(t *testing.T) {
+	type testCase struct {
+		name      string
+		values    []int
+		target    int
+		wantFound bool
+		wantPos   int
+	}
+
+	cases := []testCase{
+		{
+			name:      "empty list",
+			values:    []int{},
+			target:    5,
+			wantFound: false,
+			wantPos:   -1,
+		},
+		{
+			name:      "value at head",
+			values:    []int{10, 20, 30},
+			target:    10,
+			wantFound: true,
+			wantPos:   0,
+		},
+		{
+			name:      "value in middle",
+			values:    []int{10, 20, 30},
+			target:    20,
+			wantFound: true,
+			wantPos:   1,
+		},
+		{
+			name:      "value at tail",
+			values:    []int{10, 20, 30},
+			target:    30,
+			wantFound: true,
+			wantPos:   2,
+		},
+		{
+			name:      "value not in list",
+			values:    []int{10, 20, 30},
+			target:    99,
+			wantFound: false,
+			wantPos:   -1,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			ll := CreateLinkedList()
+			for _, val := range tc.values {
+				_ = ll.InsertAtEnd(CreateNode(val))
+			}
+
+			gotFound, gotPos := ll.SearchByValue(tc.target)
+			if gotFound != tc.wantFound || gotPos != tc.wantPos {
+				t.Errorf("SearchByValue(%d) = (%v, %d); want (%v, %d)",
+					tc.target, gotFound, gotPos, tc.wantFound, tc.wantPos)
+			}
+		})
+	}
+}
+func TestGetAt(t *testing.T) {
+	type testCase struct {
+		name         string
+		values       []int
+		pos          int
+		wantData     int
+		wantIsFound  bool
+		wantHasError bool
+	}
+
+	tests := []testCase{
+		{
+			name:         "empty list should return error",
+			values:       []int{},
+			pos:          0,
+			wantHasError: true,
+			wantIsFound:  false,
+		},
+		{
+			name:         "negative position returns error",
+			values:       []int{10, 20, 30},
+			pos:          -1,
+			wantHasError: true,
+			wantIsFound:  false,
+		},
+		{
+			name:         "position out of bounds returns error",
+			values:       []int{10, 20},
+			pos:          5,
+			wantHasError: true,
+			wantIsFound:  false,
+		},
+		{
+			name:         "valid position at head",
+			values:       []int{100, 200, 300},
+			pos:          0,
+			wantData:     100,
+			wantHasError: false,
+			wantIsFound:  true,
+		},
+		{
+			name:         "valid position in middle",
+			values:       []int{100, 200, 300},
+			pos:          1,
+			wantData:     200,
+			wantHasError: false,
+			wantIsFound:  true,
+		},
+		{
+			name:         "valid position at end",
+			values:       []int{100, 200, 300},
+			pos:          2,
+			wantData:     300,
+			wantHasError: false,
+			wantIsFound:  true,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			ll := CreateLinkedList()
+			for _, val := range tc.values {
+				_ = ll.InsertAtEnd(CreateNode(val))
+			}
+
+			node, isFound, err := ll.GetAt(tc.pos)
+			gotHasError := err != nil
+
+			if gotHasError != tc.wantHasError {
+				t.Errorf("expected error = %v, got error = %v", tc.wantHasError, gotHasError)
+			}
+			if isFound != tc.wantIsFound {
+				t.Errorf("expected isFound = %v, got = %v", tc.wantIsFound, isFound)
+			}
+			if isFound && node != nil && node.data != tc.wantData {
+				t.Errorf("expected node.data = %d, got = %d", tc.wantData, node.data)
+			}
+		})
+	}
+}
