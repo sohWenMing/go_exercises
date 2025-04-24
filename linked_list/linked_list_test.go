@@ -343,3 +343,91 @@ func TestDeleteAtPosition(t *testing.T) {
 		}
 	})
 }
+
+func TestDeleteByValue(t *testing.T) {
+	t.Run("delete from empty list", func(t *testing.T) {
+		ll := CreateLinkedList()
+		deleted := ll.DeleteByValue(10)
+		if deleted {
+			t.Error("expected false, got true when deleting from empty list")
+		}
+	})
+
+	t.Run("delete head value in list", func(t *testing.T) {
+		ll := CreateLinkedList()
+		ll.InsertAtEnd(CreateNode(1))
+		ll.InsertAtEnd(CreateNode(2))
+		ll.InsertAtEnd(CreateNode(3))
+		deleted := ll.DeleteByValue(1)
+		if !deleted {
+			t.Error("expected true, got false when deleting head")
+		}
+		if ll.GetHead().data != 2 {
+			t.Errorf("expected head to be 2, got %d", ll.GetHead().data)
+		}
+	})
+
+	t.Run("delete middle value", func(t *testing.T) {
+		ll := CreateLinkedList()
+		ll.InsertAtEnd(CreateNode(1))
+		ll.InsertAtEnd(CreateNode(2))
+		ll.InsertAtEnd(CreateNode(3))
+		deleted := ll.DeleteByValue(2)
+		if !deleted {
+			t.Error("expected true, got false when deleting middle node")
+		}
+		if ll.GetHead().next.data != 3 {
+			t.Errorf("expected second node to be 3, got %d", ll.GetHead().next.data)
+		}
+	})
+
+	t.Run("delete last value", func(t *testing.T) {
+		ll := CreateLinkedList()
+		ll.InsertAtEnd(CreateNode(1))
+		ll.InsertAtEnd(CreateNode(2))
+		ll.InsertAtEnd(CreateNode(3))
+		deleted := ll.DeleteByValue(3)
+		if !deleted {
+			t.Error("expected true, got false when deleting last node")
+		}
+		if ll.GetHead().next.next != nil {
+			t.Errorf("expected tail to be nil, got %v", ll.GetHead().next.next)
+		}
+	})
+
+	t.Run("delete non-existent value", func(t *testing.T) {
+		ll := CreateLinkedList()
+		ll.InsertAtEnd(CreateNode(1))
+		ll.InsertAtEnd(CreateNode(2))
+		deleted := ll.DeleteByValue(42)
+		if deleted {
+			t.Error("expected false, got true when value does not exist")
+		}
+	})
+
+	t.Run("delete only element in list", func(t *testing.T) {
+		ll := CreateLinkedList()
+		ll.InsertAtEnd(CreateNode(99))
+		deleted := ll.DeleteByValue(99)
+		if !deleted {
+			t.Error("expected true, got false when deleting only node")
+		}
+		if ll.GetHead() != nil {
+			t.Errorf("expected head to be nil, got %v", ll.GetHead())
+		}
+	})
+
+	t.Run("delete one of multiple same values", func(t *testing.T) {
+		ll := CreateLinkedList()
+		ll.InsertAtEnd(CreateNode(7))
+		ll.InsertAtEnd(CreateNode(7))
+		ll.InsertAtEnd(CreateNode(7))
+		deleted := ll.DeleteByValue(7)
+		if !deleted {
+			t.Error("expected true, got false when deleting from list with duplicates")
+		}
+		if ll.GetHead().data != 7 || ll.GetHead().next.data != 7 || ll.GetHead().next.next != nil {
+			t.Error("expected only first occurrence of value 7 to be deleted")
+		}
+	})
+}

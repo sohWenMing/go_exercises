@@ -174,6 +174,37 @@ func (l *LinkedList) DeleteAtPosition(pos int) (isDeleted bool) {
 	return
 }
 
+func (l *LinkedList) DeleteByValue(val int) (isDeleted bool) {
+	isDeleted = false
+	curr := l.GetHead()
+	if curr == nil {
+		return
+	}
+	//empty list, return
+	var prev *Node
+	for curr != nil {
+		switch val == curr.data {
+		case true:
+			isDeleted = true
+			l.decrementLength()
+			//either way, safe to decrement and return true
+
+			if curr == l.GetHead() {
+				l.SetHead(curr.next)
+				return
+			}
+			//if we're still at head, then just reset the head and decrement list length
+			prev.next = curr.next
+			return
+
+		case false:
+			prev = curr
+			curr = curr.next
+		}
+	}
+	return
+}
+
 func (l *LinkedList) decrementLength() {
 	l.length -= 1
 }
