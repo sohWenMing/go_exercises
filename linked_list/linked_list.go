@@ -43,6 +43,7 @@ func (l *LinkedList) InsertAtBeginning(n *Node) error {
 	}
 	n.next = l.head
 	l.SetHead(n)
+	l.incrementLength()
 	return nil
 }
 
@@ -58,6 +59,7 @@ func (l *LinkedList) InsertAtEnd(n *Node) error {
 		curNode = curNode.next
 	}
 	curNode.next = n
+	l.incrementLength()
 	return nil
 }
 
@@ -90,7 +92,94 @@ func (l *LinkedList) InsertAtPosition(pos int, value int) (isInserted bool) {
 			return
 		}
 	}
+	l.incrementLength()
 	return false
+}
+
+func (l *LinkedList) DeleteFromBeginning() (isDeleted bool) {
+	head := l.GetHead()
+	if head == nil {
+		isDeleted = false
+		return
+	}
+	isDeleted = true
+	l.SetHead(head.next)
+	l.decrementLength()
+	return
+}
+
+func (l *LinkedList) DeleteFromEnd() (isDeleted bool) {
+	head := l.GetHead()
+	if head == nil {
+		isDeleted = false
+		return
+	}
+	isDeleted = true
+	l.decrementLength()
+	if head.next == nil {
+		l.SetHead(nil)
+		return
+	}
+	prev := head
+	curr := head.next
+	for curr.next != nil {
+		prev = curr
+		curr = curr.next
+	}
+	prev.next = nil
+	return
+}
+
+func (l *LinkedList) DeleteAtPosition(pos int) (isDeleted bool) {
+	isDeleted = false
+	if pos < 0 {
+		return
+	}
+	// if the pos entered is less than zero, just exit
+	if pos > l.length-1 {
+		return
+	}
+	// if the position is out of bounds, return
+
+	curr := l.GetHead()
+	if curr == nil {
+		return
+	}
+	// if list is empty, just return
+
+	currPos := 0
+	l.decrementLength()
+	// at this point it's safe to decrement, because we know that pos is within the list by position
+	// and that only max 1 will be decremented
+	isDeleted = true
+	var prev *Node
+	for curr != nil {
+		switch currPos == pos {
+		case true:
+			if prev == nil {
+				l.SetHead(curr.next)
+				return
+				//if prev == nil, then we're at head, so just set the new head to next which can be next or nil
+			} else {
+				prev.next = curr.next
+				return
+			}
+			//node is deleted, setting prev.next to point to curr.next. exit
+		case false:
+			prev = curr
+			curr = curr.next
+			currPos++
+		}
+	}
+	return
+}
+
+func (l *LinkedList) decrementLength() {
+	l.length -= 1
+}
+
+func (l *LinkedList) incrementLength() {
+	l.length++
 }
 
 func checkNilNode(n *Node) error {
@@ -107,5 +196,4 @@ func (l *LinkedList) setHeadIfHeadEmpty(n *Node) (isSet bool) {
 		return true
 	}
 	return false
-
 }

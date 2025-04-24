@@ -181,3 +181,165 @@ func TestInsertAtPosition_OutOfBounds(t *testing.T) {
 		t.Error("Expected insertion to fail due to out-of-bounds position")
 	}
 }
+
+func TestDeleteFromBeginning(t *testing.T) {
+	// Setup: Create a linked list 1 -> 2 -> 3
+	node3 := &Node{data: 3}
+	node2 := &Node{data: 2, next: node3}
+	node1 := &Node{data: 1, next: node2}
+	list := &LinkedList{head: node1, length: 3}
+
+	// Act: Delete from beginning
+	deleted := list.DeleteFromBeginning()
+
+	// Assert
+	if !deleted {
+		t.Errorf("Expected deletion to return true, got false")
+	}
+	if list.head != node2 {
+		t.Errorf("Expected head to be node2, got %+v", list.head)
+	}
+	if list.length != 2 {
+		t.Errorf("Expected length to be 2 after deletion, got %d", list.length)
+	}
+
+	// Act: Delete remaining nodes
+	list.DeleteFromBeginning() // deletes node2
+	list.DeleteFromBeginning() // deletes node3
+
+	// List should now be empty
+	if list.head != nil {
+		t.Errorf("Expected head to be nil after deleting all nodes")
+	}
+	if list.length != 0 {
+		t.Errorf("Expected length to be 0 after all deletions, got %d", list.length)
+	}
+
+	// Try deleting from empty list
+	deleted = list.DeleteFromBeginning()
+	if deleted {
+		t.Errorf("Expected deletion to return false on empty list, got true")
+	}
+}
+
+func TestDeleteFromEnd(t *testing.T) {
+	// --- Case 1: Deleting from a multi-node list ---
+	node3 := &Node{data: 3}
+	node2 := &Node{data: 2, next: node3}
+	node1 := &Node{data: 1, next: node2}
+	list := &LinkedList{head: node1, length: 3}
+
+	deleted := list.DeleteFromEnd()
+	if !deleted {
+		t.Errorf("Expected deletion to return true, got false")
+	}
+	if list.length != 2 {
+		t.Errorf("Expected length to be 2 after deletion, got %d", list.length)
+	}
+	if list.head.next.next != nil {
+		t.Errorf("Expected last node to be nil after deletion, got %+v", list.head.next.next)
+	}
+
+	// --- Case 2: Deleting from a single-node list ---
+	singleNode := &Node{data: 10}
+	singleList := &LinkedList{head: singleNode, length: 1}
+
+	deleted = singleList.DeleteFromEnd()
+	if !deleted {
+		t.Errorf("Expected deletion to return true for single-node list, got false")
+	}
+	if singleList.head != nil {
+		t.Errorf("Expected head to be nil after deleting the only node, got %+v", singleList.head)
+	}
+	if singleList.length != 0 {
+		t.Errorf("Expected length to be 0 after deletion, got %d", singleList.length)
+	}
+
+	// --- Case 3: Deleting from an empty list ---
+	emptyList := &LinkedList{}
+	deleted = emptyList.DeleteFromEnd()
+	if deleted {
+		t.Errorf("Expected deletion to return false on empty list, got true")
+	}
+	if emptyList.head != nil {
+		t.Errorf("Expected head to still be nil on empty list")
+	}
+	if emptyList.length != 0 {
+		t.Errorf("Expected length to be 0 on empty list, got %d", emptyList.length)
+	}
+}
+func TestDeleteAtPosition(t *testing.T) {
+	// Helper to build linked list: 1 -> 2 -> 3
+	makeList := func() *LinkedList {
+		n3 := &Node{data: 3}
+		n2 := &Node{data: 2, next: n3}
+		n1 := &Node{data: 1, next: n2}
+		return &LinkedList{head: n1, length: 3}
+	}
+
+	t.Run("delete at position 0 (head)", func(t *testing.T) {
+		list := makeList()
+		deleted := list.DeleteAtPosition(0)
+		if !deleted {
+			t.Errorf("Expected deletion at position 0 to succeed")
+		}
+		if list.head.data != 2 {
+			t.Errorf("Expected head to now be 2, got %d", list.head.data)
+		}
+		if list.length != 2 {
+			t.Errorf("Expected length to be 2, got %d", list.length)
+		}
+	})
+
+	t.Run("delete at middle position", func(t *testing.T) {
+		list := makeList()
+		deleted := list.DeleteAtPosition(1)
+		if !deleted {
+			t.Errorf("Expected deletion at position 1 to succeed")
+		}
+		if list.head.next.data != 3 {
+			t.Errorf("Expected node at position 1 to be 3, got %d", list.head.next.data)
+		}
+		if list.length != 2 {
+			t.Errorf("Expected length to be 2, got %d", list.length)
+		}
+	})
+
+	t.Run("delete at last position", func(t *testing.T) {
+		list := makeList()
+		deleted := list.DeleteAtPosition(2)
+		if !deleted {
+			t.Errorf("Expected deletion at position 2 to succeed")
+		}
+		if list.head.next.next != nil {
+			t.Errorf("Expected last node to be nil after deletion")
+		}
+		if list.length != 2 {
+			t.Errorf("Expected length to be 2, got %d", list.length)
+		}
+	})
+
+	t.Run("delete at out-of-bounds position", func(t *testing.T) {
+		list := makeList()
+		deleted := list.DeleteAtPosition(5)
+		if deleted {
+			t.Errorf("Expected deletion at out-of-bounds position to fail")
+		}
+	})
+
+	t.Run("delete from empty list", func(t *testing.T) {
+		list := &LinkedList{}
+		deleted := list.DeleteAtPosition(0)
+		if deleted {
+			t.Errorf("Expected deletion from empty list to fail")
+		}
+	})
+
+	t.Run("delete at negative position", func(t *testing.T) {
+		list := makeList()
+		deleted := list.DeleteAtPosition(-1)
+		if deleted {
+			t.Errorf("Expected deletion at negative position to fail")
+		}
+	})
+}
